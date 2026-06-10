@@ -1,0 +1,26 @@
+# v0 sandbox internal files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+.vercel/
+
+# Environment variables
+.env*.local
+
+# Local SQLite database
+data/
+
+# Build artifacts
+*.tsbuildinfo
+.next/
+
+# Logs and debug
+*.log
+cookiejar.txt
+cookies.txt
+
+# Common ignores
+node_modules
+.DS_Store
