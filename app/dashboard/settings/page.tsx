@@ -45,6 +45,7 @@ import {
   Store,
   Plus,
   Pencil,
+  Trash2,
   Loader2,
   HelpCircle,
   Database,
@@ -105,6 +106,7 @@ export default function SettingsPage() {
     role: "cajero",
   });
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const [configForm, setConfigForm] = useState<SystemConfig>({});
   const [configSaving, setConfigSaving] = useState(false);
@@ -167,6 +169,19 @@ export default function SettingsPage() {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteUser = async (userId: number) => {
+    const response = await fetch(`/api/users?id=${userId}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      mutate("/api/users");
+      setDeleteConfirm(null);
+    } else {
+      const err = await response.json();
+      alert(err.error || "Error al eliminar usuario");
     }
   };
 
@@ -453,18 +468,53 @@ export default function SettingsPage() {
                             />
                           </TableCell>
                           <TableCell>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => openEditUserDialog(user)}
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Editar usuario</TooltipContent>
-                            </Tooltip>
+                            <div className="flex items-center gap-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openEditUserDialog(user)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Editar usuario</TooltipContent>
+                              </Tooltip>
+                              {deleteConfirm === user.id ? (
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => deleteUser(user.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => setDeleteConfirm(null)}
+                                  >
+                                    Cancelar
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => setDeleteConfirm(user.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Eliminar usuario</TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

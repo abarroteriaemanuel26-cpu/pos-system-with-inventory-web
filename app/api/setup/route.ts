@@ -1,5 +1,5 @@
 import { getDb, getClient } from "@/lib/db";
-import { users, categories, systemConfig } from "@/lib/schema";
+import { users, categories, caiConfigs, systemConfig } from "@/lib/schema";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
@@ -263,9 +263,22 @@ export async function POST() {
       // Create default system config
       await db.insert(systemConfig).values([
         { key: "business_name", value: "Mi Bodega" },
+        { key: "business_address", value: "Dirección del negocio" },
+        { key: "business_phone", value: "0000-0000" },
+        { key: "business_email", value: "correo@ejemplo.com" },
         { key: "ticket_footer", value: "Gracias por su compra" },
         { key: "printer_type", value: "thermal" },
+        { key: "cash_register_number", value: "1" },
       ]);
+
+      // Create sample CAI configuration if none exists
+      const existingCai = await db.select().from(caiConfigs).limit(1);
+      if (existingCai.length === 0) {
+        await db.run(sql`
+          INSERT INTO cai_configs (cai, rtn, business_name, business_address, phone, range_start, range_end, current_number, prefix, expiry_date, active)
+          VALUES ('DEMO-8X3B-7A2C-4D9E-1F5G', '00000000000000', 'Mi Bodega', 'Dirección del negocio', '0000-0000', 1, 1000, 1, '000-001-01', '2027-12-31', 1)
+        `);
+      }
     }
 
     return NextResponse.json({ success: true, message: "Base de datos configurada correctamente" });

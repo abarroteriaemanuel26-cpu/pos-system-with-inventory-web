@@ -76,6 +76,38 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const db = getDb();
+    const session = await getSession();
+    if (!session || session.role !== "admin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    }
+
+    const userId = parseInt(id, 10);
+
+    if (userId === session.id) {
+      return NextResponse.json(
+        { error: "No puedes eliminar tu propio usuario" },
+        { status: 400 }
+      );
+    }
+
+    await db.delete(users).where(eq(users.id, userId));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 });
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const db = getDb();
