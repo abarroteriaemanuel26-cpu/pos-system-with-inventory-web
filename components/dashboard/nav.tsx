@@ -28,6 +28,7 @@ import type { User as UserType } from "@/lib/auth";
 
 interface DashboardNavProps {
   user: UserType;
+  businessName: string;
 }
 
 const navItems = [
@@ -93,7 +94,7 @@ const navItems = [
   },
 ];
 
-export function DashboardNav({ user }: DashboardNavProps) {
+export function DashboardNav({ user, businessName }: DashboardNavProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -117,7 +118,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="font-semibold truncate">Sistema POS</h1>
-              <p className="text-xs text-muted-foreground truncate">Bodega</p>
+              <p className="text-xs text-muted-foreground truncate">{businessName}</p>
             </div>
           </div>
         </div>
