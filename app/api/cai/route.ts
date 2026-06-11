@@ -50,6 +50,25 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const db = getDb();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    }
+
+    const caiId = parseInt(id, 10);
+    await db.delete(caiConfigs).where(eq(caiConfigs.id, caiId));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting CAI config:", error);
+    return NextResponse.json({ error: "Error al eliminar CAI" }, { status: 500 });
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const db = getDb();

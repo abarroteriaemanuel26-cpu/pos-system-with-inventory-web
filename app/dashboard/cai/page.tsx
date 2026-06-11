@@ -33,6 +33,7 @@ import { formatDate, formatRTN, formatInvoiceNumber } from "@/lib/utils/format";
 import {
   Plus,
   Pencil,
+  Trash2,
   Loader2,
   Receipt,
   AlertTriangle,
@@ -83,6 +84,7 @@ export default function CaiPage() {
   const [editingConfig, setEditingConfig] = useState<CaiConfig | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const openNewDialog = () => {
     setEditingConfig(null);
@@ -134,6 +136,17 @@ export default function CaiPage() {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteCai = async (id: number) => {
+    const response = await fetch(`/api/cai?id=${id}`, { method: "DELETE" });
+    if (response.ok) {
+      mutate("/api/cai");
+      setDeleteConfirm(null);
+    } else {
+      const err = await response.json();
+      alert(err.error || "Error al eliminar CAI");
     }
   };
 
@@ -337,6 +350,39 @@ export default function CaiPage() {
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Establecer como activo</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {deleteConfirm === config.id ? (
+                            <div className="flex gap-1">
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => deleteCai(config.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => setDeleteConfirm(null)}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                          ) : (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeleteConfirm(config.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Eliminar CAI</TooltipContent>
                             </Tooltip>
                           )}
                         </div>
